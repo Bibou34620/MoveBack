@@ -1,6 +1,7 @@
 isOnLeft = False
 isOnRight = False
-isForward = True
-isBack = False
+isForward = False
+isBack = True
 isBullet1Collided = False
 isBullet2Collided = False
+isLvlUpCollided = False
