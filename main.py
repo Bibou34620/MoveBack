@@ -8,6 +8,7 @@ pygame.init()
 
 running = True
 ui = pygame.image.load("images/mapAndUi.png")
+endScreenUi = pygame.image.load("images/endScreenUi.png")
 
 turnSound = pygame.mixer.Sound("sounds/turn.wav")
 noMoves = pygame.mixer.Sound("sounds/noMoves.Wav")
@@ -18,6 +19,13 @@ statusUpdateSound = pygame.mixer.Sound("sounds/statusUpdate.wav")
 
 uiFont = pygame.font.SysFont("Poppins-Medium.ttf", 55)
 statusFont = pygame.font.SysFont("Poppins-Medium.ttf", 35)
+endScoreFont = pygame.font.SysFont("Poppins-Medium.ttf", 55)
+bestScoreFont = pygame.font.SysFont("Poppins-Medium.ttf", 35)
+
+bestScoreRead = open('etc/bestScore.txt', 'r')
+bestScoreWrite = open('etc/bestScore.txt', 'a')
+
+print(bestScoreRead.read())
 
 turnSound.set_volume(0.05)
 noMoves.set_volume(0.05)
@@ -53,49 +61,73 @@ while running:
     if level > 9:
         blueLvlUpLevel = 255
         greenLvlUp = 255
-    
-    movesRemains = uiFont.render(str(moves), True, (movesRedLevel, 0, 0))
-    movesRemainsRect = movesRemains.get_rect()
-    
-    levelText = uiFont.render(str(level), True, (redLvlUpLevel, greenLvlUp, 51))
-    levelTextRect = levelText.get_rect()
-    
-    status = statusFont.render(currentStatus, True, (0, 0 ,0))
-    statusRect = status.get_rect()
-    
-    movesRemainsRect.x = 600
-    movesRemainsRect.y = 12.5 
-    
-    levelTextRect.x = 575
-    levelTextRect.y = 74
-    
-    statusRect.x = 467
-    statusRect.y = 180
-    
-    op.screen.blit(ui, (0, 0))
-    op.screen.blit(movesRemains, movesRemainsRect)
-    op.screen.blit(levelText, levelTextRect)
-    op.screen.blit(levelText, levelTextRect)
-    op.screen.blit(status, statusRect)
-    op.screen.blit(player.actualPlayerRenderer, (player.playerRect.x, player.playerRect.y))
-    
-    if isBullet1Collided == False:
-        op.screen.blit(bullet.bullet, (bullet.bulletRect.x, bullet.bulletRect.y))
         
-    if isBullet2Collided == False:
-        op.screen.blit(secondBullet.bullet, (secondBullet.bulletRect.x, secondBullet.bulletRect.y))
+    if isOnGame:
+    
+        movesRemains = uiFont.render(str(moves), True, (movesRedLevel, 0, 0))
+        movesRemainsRect = movesRemains.get_rect()
+
+        levelText = uiFont.render(str(level), True, (redLvlUpLevel, greenLvlUp, 51))
+        levelTextRect = levelText.get_rect()
+
+        status = statusFont.render(currentStatus, True, (0, 0 ,0))
+        statusRect = status.get_rect()
+
+        movesRemainsRect.x = 600
+        movesRemainsRect.y = 12.5 
+
+        levelTextRect.x = 575
+        levelTextRect.y = 74
+
+        statusRect.x = 467
+        statusRect.y = 180
+
+        op.screen.blit(ui, (0, 0))
+        op.screen.blit(movesRemains, movesRemainsRect)
+        op.screen.blit(levelText, levelTextRect)
+        op.screen.blit(levelText, levelTextRect)
+        op.screen.blit(status, statusRect)
+        op.screen.blit(player.actualPlayerRenderer, (player.playerRect.x, player.playerRect.y))
+
+        if isBullet1Collided == False:
+            op.screen.blit(bullet.bullet, (bullet.bulletRect.x, bullet.bulletRect.y))
+
+        if isBullet2Collided == False:
+            op.screen.blit(secondBullet.bullet, (secondBullet.bulletRect.x, secondBullet.bulletRect.y))
+
+        if isLvlUpCollided == False:
+            op.screen.blit(lvlUp.lvlUp, (lvlUp.lvlUpRect.x, lvlUp.lvlUpRect.y))
+    
+    
+        print(player.playerRect.x," " , player.playerRect.y)
+
+        bullet.spawnRandomBullets()
+        secondBullet.spawnRandomBullets()
+        lvlUp.spawnRandomBullets()
+
+        print(isBullet1Collided)
         
-    if isLvlUpCollided == False:
-        op.screen.blit(lvlUp.lvlUp, (lvlUp.lvlUpRect.x, lvlUp.lvlUpRect.y))
-    
-    
-    print(player.playerRect.x," " , player.playerRect.y)
-    
-    bullet.spawnRandomBullets()
-    secondBullet.spawnRandomBullets()
-    lvlUp.spawnRandomBullets()
+    if isOnEndScreen:
+        op.screen.blit(endScreenUi, (0, 0))
         
-    print(isBullet1Collided)
+        endScoreText = endScoreFont.render(str(level), True, (176.9, 161.6, 57.2))
+        endScoreTextRect = endScoreText.get_rect()
+        
+        endScoreTextRect.x = 405
+        endScoreTextRect.y = 81
+        
+        op.screen.blit(endScoreText, endScoreTextRect)
+        
+        bestScoreText = bestScoreFont.render(str(bestScoreRead.read()), True, (176.9, 161.6, 57.2))
+        bestScoreTextRect = bestScoreText.get_rect()
+        
+        endScoreTextRect.x = 405
+        endScoreTextRect.y = 130
+        
+        op.screen.blit(bestScoreText, bestScoreTextRect)
+        
+        
+        
     
             
             
@@ -109,7 +141,7 @@ while running:
             running = False
             pygame.quit()
             
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN and isOnGame:
             if event.key == pygame.K_LEFT:
                 player.actualPlayerRenderer = player.player_left
                 turnSound.play()
@@ -184,6 +216,10 @@ while running:
                 
             if event.key == pygame.K_SPACE and moves == 0:
                 noMoves.play()
+                
+            if event.key == pygame.K_r and moves == 0:
+                isOnGame = False
+                isOnEndScreen = True
                 
                 
             if event.key == pygame.K_SPACE and player.playerRect.colliderect(bullet.bulletRect) and isBullet1Collided == False:
