@@ -7,9 +7,11 @@ import random
 pygame.init()
 
 running = True
+mainMenuUi = pygame.image.load("images/welcomeScreen.png")
 ui = pygame.image.load("images/mapAndUi.png")
 endScreenUi = pygame.image.load("images/endScreenUi.png")
 
+mainMenuMusic = pygame.mixer.Sound("sounds/mainMenuMusic.wav")
 turnSound = pygame.mixer.Sound("sounds/turn.wav")
 noMoves = pygame.mixer.Sound("sounds/noMoves.Wav")
 walking = pygame.mixer.Sound("sounds/walking.wav")
@@ -22,11 +24,7 @@ statusFont = pygame.font.SysFont("Poppins-Medium.ttf", 35)
 endScoreFont = pygame.font.SysFont("Poppins-Medium.ttf", 55)
 bestScoreFont = pygame.font.SysFont("Poppins-Medium.ttf", 35)
 
-bestScoreRead = open('etc/bestScore.txt', 'r')
-bestScoreWrite = open('etc/bestScore.txt', 'a')
-
-print(bestScoreRead.read())
-
+mainMenuMusic.set_volume(0.05)
 turnSound.set_volume(0.05)
 noMoves.set_volume(0.05)
 walking.set_volume(0.05)
@@ -46,11 +44,13 @@ player.playerRect.y = 5
 
 while running:
     
+    mouse = pygame.mouse.get_pos()
+    
     if moves > 0:
         currentStatus = "Nothing to report"
         
     if moves == 0:
-        currentStatus = "        Press R"
+        currentStatus = "        Press S"
         
     if moves < 3:
         movesRedLevel = 200
@@ -62,7 +62,32 @@ while running:
         blueLvlUpLevel = 255
         greenLvlUp = 255
         
+    if isOnMainMenu:
+        
+        mainMenuMusic.play()
+        op.screen.blit(mainMenuUi, (0, 0))
+        
+        playButton.playButtonRect.x = 160
+        playButton.playButtonRect.y = 180
+        
+        op.screen.blit(playButton.playButton, (playButton.playButtonRect.x, playButton.playButtonRect.y))
+        
+        if playButton.playButtonRect.collidepoint(mouse) and mousePressed:
+            isOnMainMenu = False
+            isOnGame = True
+            print("hi")
+            
+    
+        
     if isOnGame:
+        
+        if bullet.randomPosition == secondBullet.randomPosition and bullet.randomPosition < 62:
+                bullet.randomPosition += 1
+                
+        if bullet.randomPosition == lvlUp.randomPosition and bullet.randomPosition < 62:
+                bullet.randomPosition += 1
+        
+        mainMenuMusic.stop()
     
         movesRemains = uiFont.render(str(moves), True, (movesRedLevel, 0, 0))
         movesRemainsRect = movesRemains.get_rect()
@@ -118,30 +143,22 @@ while running:
         
         op.screen.blit(endScoreText, endScoreTextRect)
         
-        bestScoreText = bestScoreFont.render(str(bestScoreRead.read()), True, (176.9, 161.6, 57.2))
-        bestScoreTextRect = bestScoreText.get_rect()
-        
-        endScoreTextRect.x = 405
-        endScoreTextRect.y = 130
-        
-        op.screen.blit(bestScoreText, bestScoreTextRect)
-        
-        
-        
-    
-            
             
     pygame.display.flip()
-        
-        
-    
+         
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
             
-        if event.type == pygame.KEYDOWN and isOnGame:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mousePressed = True
+            
+        if event.type == pygame.MOUSEBUTTONUP:
+            mousePressed = False
+            
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 player.actualPlayerRenderer = player.player_left
                 turnSound.play()
@@ -217,7 +234,7 @@ while running:
             if event.key == pygame.K_SPACE and moves == 0:
                 noMoves.play()
                 
-            if event.key == pygame.K_r and moves == 0:
+            if event.key == pygame.K_s and moves == 0 and isOnGame:
                 isOnGame = False
                 isOnEndScreen = True
                 
@@ -241,3 +258,33 @@ while running:
                 isBullet1Collided = False
                 isBullet2Collided = False
                 level += 1
+                
+            if event.key == pygame.K_ESCAPE and isOnEndScreen:
+                isOnEndScreen = False
+                isOnMainMenu = True
+                moves = 5
+                level = 0
+                player.actualPlayerRenderer = player.player_forward
+                player.playerRect.x = 15
+                player.playerRect.y = 5
+                isBullet1Collided = False
+                isBullet2Collided = False
+                bullet.spawnRandomBullets()
+                secondBullet.spawnRandomBullets()
+                lvlUp.spawnRandomBullets()
+                
+            if event.key == pygame.K_r and isOnEndScreen:
+                isOnEndScreen = False
+                isOnGame = True
+                moves = 5
+                level = 0
+                player.actualPlayerRenderer = player.player_forward
+                player.playerRect.x = 15
+                player.playerRect.y = 5
+                isBullet1Collided = False
+                isBullet2Collided = False
+                bullet.spawnRandomBullets()
+                secondBullet.spawnRandomBullets()
+                lvlUp.spawnRandomBullets()
+                
+                

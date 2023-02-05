@@ -6,6 +6,8 @@ isBullet1Collided = False
 isBullet2Collided = False
 isLvlUpCollided = False
 
-isOnMainMenu = False
-isOnGame = True
+isOnMainMenu = True
+isOnGame = False
 isOnEndScreen = False
+
+mousePressed = False

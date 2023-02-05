@@ -1,6 +1,7 @@
 import pygame
 import random
 from variables import *
+from instantiate import *
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self):
@@ -15,6 +16,8 @@ class Bullet(pygame.sprite.Sprite):
         self.x = self.bulletRect.x
         
         self.y = self.bulletRect.y
+        
+        
 
     def spawnRandomBullets(self):
         if self.randomPosition == 0 and isBullet1Collided == False:
